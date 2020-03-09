@@ -2,7 +2,7 @@
 
 Materials for the paper "Jouni Helske, Santtu Tikka, Juha Karvanen (2020). *Estimation of causal effects with small data under implicit functional constraints*. Submitted."
 
-* arXiv preprint: 
+* arXiv preprint: https://arxiv.org/abs/2003.03187
 
 ### Repository contents
 
