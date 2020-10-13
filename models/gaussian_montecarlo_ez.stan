@@ -48,19 +48,18 @@ generated quantities {
   real yrep;
   real mcse;
   
+  vector[N] samples;
+  vector[N] weights;
+  for(i in 1:N) {
+    real wi = normal_rng(a_w, s_w);
+    samples[i] = normal_rng(a_y + b_yx * do_x + b_yz * trapdoor + b_yw * wi, s_y);
+    weights[i] = normal_lpdf(do_x | a_x + b_xz * trapdoor + b_xw * wi, s_x);
+  }
   
-    vector[N] samples;
-    vector[N] weights;
-    for(i in 1:N) {
-      real wi = normal_rng(a_w, s_w);
-      samples[i] = normal_rng(a_y + b_yx * do_x + b_yz * trapdoor + b_yw * wi, s_y);
-      weights[i] = normal_lpdf(do_x | a_x + b_xz * trapdoor + b_xw * wi, s_x);
-    }
-    
-    weights = exp(weights - max(weights));
-    weights = weights / sum(weights);
-    mean_montecarlo = dot_product(weights, samples);
-    yrep = samples[categorical_rng(weights)];
-    mcse = sqrt(sum(square(weights .* (samples - mean_montecarlo))));
- 
+  weights = exp(weights - max(weights));
+  weights = weights / sum(weights);
+  mean_montecarlo = dot_product(weights, samples);
+  yrep = samples[categorical_rng(weights)];
+  mcse = sqrt(sum(square(weights .* (samples - mean_montecarlo))));
+  
 }
