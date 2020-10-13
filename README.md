@@ -1,6 +1,6 @@
-## Estimation of causal effects with small data under implicit functional constraints
+## Estimation of causal effects with small data under the presence of trapdoor variables
 
-Materials for the paper "Jouni Helske, Santtu Tikka, Juha Karvanen (2020). *Estimation of causal effects with small data under implicit functional constraints*. Submitted."
+Materials for the paper "Jouni Helske, Santtu Tikka, Juha Karvanen (2020). *Estimation of causal effects with small data under the presence of trapdoor variables*. Submitted."
 
 * arXiv preprint: https://arxiv.org/abs/2003.03187
 
