@@ -9,14 +9,14 @@ size <- 0.5
 sumr <- readRDS("results/summary_bernoulli.rds")
 levels(sumr$method) <- 
   c("z = 0", "z = 1", "P(Z)", "P(Z | X = x)", "Fully observed")
-sumr %>% 
+sumr %>% filter(y == 0) %>%
   mutate(n = factor(n), 
     var = paste0("y = ", y, ", x = ", do_x)) %>%
   ggplot(aes(y=mean, x = n, colour = method)) + 
   geom_hline(aes(yintercept = mean), 
     data = data.frame(
-      var = paste0("y = ", c(0,0,1,1), ", x = ", 0:1), 
-      mean = c(0.8, 0.4, 0.2, 0.6)), linetype = "dashed", size = 0.5*size) +
+      var = paste0("y = 0, x = ", 0:1), 
+      mean = c(0.8, 0.4)), linetype = "dashed", size = 0.5*size) +
   geom_linerange(aes(ymin = lwr, ymax = upr), 
     position = position_dodge(0.75), size = size) + 
   geom_errorbar(aes(ymin = mean, ymax = mean), width = 0.5, size = size,
@@ -29,7 +29,7 @@ sumr %>%
     legend.title = element_blank(),
     panel.grid.major.x = element_blank(),
     panel.grid.major.y = element_line(size = 0.5 * size))
-ggsave("paper/figures/bernoulli.pdf", width = 17, height = 12, unit = "cm")  
+ggsave("paper/figures/bernoulli.pdf", width = 17, height = 8, unit = "cm")  
 
 # Gaussian experiment
 
