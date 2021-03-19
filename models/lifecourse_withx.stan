@@ -149,10 +149,6 @@ parameters {
   simplex[2] simplex_sw;
   real<lower=0> sigma_sw;
   
-  // ITPA unconditional distribution
-  real a_s;
-  real<lower=0> sigma_s;
-  
   // Gender as Bernoulli
   real<lower=0,upper=1> p_gender;
   
@@ -198,14 +194,7 @@ model {
     grade[i] ~ beta(mu_grade * phi_grade, (1 - mu_grade) * phi_grade);
     
   }
-  itpa ~ normal(a_s, sigma_s);
   gender ~ bernoulli(p_gender);
-  
-  // some weak priors
-  // p_gender ~ beta(100, 100);
-  // shape_y ~ normal(0, 100);
-  // sigma_sw ~ normal(0, 10);
-  // sigma_s ~ normal(0, 10);
 }
 
 
@@ -231,8 +220,10 @@ generated quantities {
     
     for(i in 1:N) {
       // sample gender and ITPA
-      real itpa_i = normal_rng(a_s, sigma_s);
       int gender_i = bernoulli_rng(p_gender);
+      //sample itpa and ses (and ignore ses i.e. get marginal distribution of itpa)
+      int ses_i = ordered_logistic_rng(0, a_w);
+      real itpa_i = normal_rng(a_sw + b_sw * mo(simplex_sw, ses_i - 1), sigma_sw);
       
       real mu_grade = inv_logit(a_z + b_zg * gender_i + b_zs * itpa_i + 
       b_zx * mo(simplex_zx, k - 1));
@@ -245,17 +236,17 @@ generated quantities {
       
       for(j in 1:M) {
         // sample sosioeconomic status of parents
-        int ses_i = ordered_logistic_rng(0, a_w);
+        int ses_j = ordered_logistic_rng(0, a_w);
         
         real mu_education = b_xg * gender_i + b_xs * itpa_i + b_xz * trapdoor_grade +
-        b_xw * mo(simplex_xw, ses_i - 1);
+        b_xw * mo(simplex_xw, ses_j - 1);
         
         real mu_income = a_y + b_yg * gender_i + b_ys * itpa_i + b_yz * trapdoor_grade +
-        b_yx * mo(simplex_yx, k - 1) + b_yw * mo(simplex_yw, ses_i - 1);
+        b_yx * mo(simplex_yx, k - 1) + b_yw * mo(simplex_yw, ses_j - 1);
         
         sample_jk[j] = gamma_rng(shape_y, shape_y * exp(-mu_income));
         weight_jk[j] = sratio_logit_lpmf(k - 1 | mu_education, a_x) +
-        normal_lpdf(itpa_i | a_sw + b_sw * mo(simplex_sw, ses_i - 1), sigma_sw);
+        normal_lpdf(itpa_i | a_sw + b_sw * mo(simplex_sw, ses_j - 1), sigma_sw);
       }
       
       // normalize the weights
