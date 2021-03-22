@@ -59,12 +59,13 @@ fit_x <- sampling(model_x, data = d_stan, chains = 4, cores = 4,
                 refresh = 100, init = 0,
                 save_warmup = FALSE)
 
-# z = E(Z | S, G)
-model_nox <- stan_model("models/lifecourse_nox.stan")
-fit_nox <- sampling(model_nox, data = d_stan, chains = 4, cores = 4,
+saveRDS(fit_x, file = "results/lifecourse_fit_withx.rds")
+
+# z = E(Z)
+model_justz <- stan_model("models/lifecourse_justz.stan")
+fit_justz <- sampling(model_justz, data = d_stan, chains = 4, cores = 4,
                     iter = 26000, warmup = 1000,
                     refresh = 100, init = 0,
                     save_warmup = FALSE)
 
-saveRDS(fit_x, file = "results/lifecourse_fit_withx.rds")
-saveRDS(fit_nox, file = "results/lifecourse_fit_nox.rds")
+saveRDS(fit_justz, file = "results/lifecourse_fit_justz.rds")

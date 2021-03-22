@@ -78,7 +78,6 @@ parameters {
 model {
   
   for(i in 1:n) {
-    
     real mu_income = a_y + b_yg * gender[i] + b_yi * itpa[i] +
     b_yx * mo(simplex_yx, education[i]) + b_y1 * u1[i];
     
@@ -88,15 +87,6 @@ model {
   gender ~ bernoulli(p_gender);
   u1 ~ normal(a_u1, s_u1);
   u3 ~ normal(a_u3, s_u3);
-  
-  // some weak priors
-  // a_u1 ~ normal(0, 1);
-  // a_u3 ~ normal(0, 1);
-  // s_u1 ~ normal(0, 10);
-  // s_u3 ~ normal(0, 10);
-  // sigma_i ~ normal(0, 10);
-  // shape_y ~ gamma(2, 2);
-  // p_gender ~ beta(100, 100);
 }
 
 
