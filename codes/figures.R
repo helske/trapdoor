@@ -199,7 +199,7 @@ ggsave("paper/figures/fsd_posterior.pdf", width = 17, height = 12, unit = "cm")
 # Non-gaussian experiment
 
 library(simhelpers)
-df <- readRDS("results/estdf_500.rds")
+df <- readRDS("results/nongaussian_experiment.rds")
 
 # analytically obtained true values based on DGP
 truth <- c(19687.3150968954, 24046.1409601164, 32458.8951632273)
