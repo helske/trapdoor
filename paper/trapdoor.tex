@@ -109,7 +109,7 @@ E-mail: {\scriptsize jouni.helske@jyu.fi}}
 	
 	We study the estimation of causal effects with small data in scenarios where standard adjustment criteria are not applicable. By small data, we refer to a case where parameter estimation exhibits non-negligible uncertainty due to the sample size. In addition, we consider the presence of functional equality constraints known as \emph{Verma-constraints} \citep{verma1990,TianPearl2002,robins1986}. Under certain conditions (see Section~\ref{sec:theory}), these constraints are related to special variables that we call \emph{trapdoor variables}. These variables can bias the causal effect estimator for finite samples and we refer to this form of bias as \emph{trapdoor bias}. We demonstrate the practical ramifications of trapdoor variables for the estimation of causal effects via simulations in a number of synthetic scenarios with small sample sizes and compare a variety of estimation strategies in both nonparametric and parametric settings. 
 
-	As a motivating example, we consider Bayesian estimation of the causal effect of education on yearly income using real data from the Life Course 1971--2002 study \citep{fsd}. We construct a causal model for this study where we take into account the grade point average (GPA) from primary school, language skills, gender and the socioeconomic status of the parents. In the causal model, we find that GPA is in fact a trapdoor variable due to a functional equality constraint on the causal effect of interest. Bayesian modelling allows us to estimate the full post-interventional distribution of the income on different levels of education, which indicate a clear positive causal effect of education on income.
+	As a motivating example, we consider Bayesian estimation of the causal effect of education on yearly income using real data from the Finnish Life Course 1971--2002 study \citep{fsd}. We construct a causal model for this study where we take into account the grade point average (GPA) from primary school, language skills, gender and the socioeconomic status of the parents. In the causal model, we find that GPA is in fact a trapdoor variable due to a functional equality constraint on the causal effect of interest. Bayesian modelling allows us to estimate the full post-interventional distribution of the income on different levels of education, which indicate a clear positive causal effect of education on income.
 	We combine Bayesian estimation with a specialized Monte Carlo approach in order to take the effect of the trapdoor variable into account in a number of scenarios including the Life Course model. All analysis was done in the R environment \citep{R}, and the codes for the simulation experiments, the Life Course example, and the figures for the simulation results (created with the \texttt{ggplot2} package~\citep{ggplot2}) of this paper are available at \url{https://github.com/helske/trapdoor}.
 
 	The paper is structured as follows. Section~\ref{sec:theory} introduces the notation, gives a definition for the trapdoor variables and present examples on causal models where such variables are present. Section~\ref{sec:estimation} focuses on various aspects related to the estimation of causal effects in the presence of trapdoor variables including a Bayesian approach and demonstrates how a trapdoor variables manifests under a linear-Gaussian model. Section~\ref{sec:simulations} considers the effect of trapdoor variables and the trapdoor bias of causal effect estimators via simulation in a model with binary variables, a linear-Gaussian model and a synthetic scenario based on the Life Course model. The analysis using the real Life Course data is presented in Section~\ref{sec:real-data-example}. Section~\ref{sec:discussion} provides some concluding remarks.
@@ -127,9 +127,16 @@ E-mail: {\scriptsize jouni.helske@jyu.fi}}
 	
 	Note that identifiability only indicates the existence of an estimator and does not take into account the potential problems stemming from finite data. Therefore, even though determining the identifiability of $P(\+ Y \given \doo(\+ X = \+ x))$ is an important first step, it does not guarantee that we can estimate the causal effect in practice without additional stability assumptions \citep{maclaren2019}. Note also that through this paper we assume that our causal graph is correct, while in practice we are rarely certain of this.
 	
-	Interventional distributions exhibit conditional independence constraints, which can be characterized by $d$-separation \citep{Pearl88} in the associated causal graph of the model. However, identifiable causal effects can be subject to Verma-constraints. As an example of such a constraint, consider the causal graph of \autoref{fig:verma-admissible}. The causal effect of $X$ on $Y$ is identifiable in this graph which can be verified using do-calculus or by applying an identifiability algorithm such as the one by \citet{huangvaltorta:complete} or the ID algorithm by \citet{Shpitser2006}. Application of the ID algorithm implemented in the \texttt{R} package \texttt{causaleffect} \citep{TikkaKarvanen2017} provides the formula
+	Interventional distributions exhibit conditional independence constraints, which can be characterized by $d$-separation \citep{Pearl88} in the associated causal graph of the model. However, identifiable causal effects can be subject to Verma-constraints. As an example of such a constraint,  we show that in the causal graph of \autoref{fig:verma-admissible},
+	a causal effect does not depend on the value of a variable $W$ despite it appearing in the identifying functional of the interventional distribution. The causal effect of $X$ on $Y$ is identifiable in this graph which can be verified using do-calculus or by applying an identifiability algorithm such as the one by \citet{huangvaltorta:complete} or the ID algorithm by \citet{Shpitser2006}. Application of the ID algorithm implemented in the \texttt{R} package \texttt{causaleffect} \citep{TikkaKarvanen2017} provides the formula
 	\[ P(Y \given \doo(X = x)) = \sum_{z} P(Y \given x, z, w) P(z \given w), \]
-	where the left-hand side depends on the value of $X$ and $Y$, but on the right-hand the variable $W$ is also present and it is not subject to summation, unlike the variable $Z$. It can be shown that the right-hand side also does not depend on the value of $W$ (see \autoref{sec:trapdoor}).
+	where the left-hand side depends on the value of $X$ and $Y$, but on the right-hand the variable $W$ is also present and it is not subject to summation, unlike the variable $Z$. However, the right-hand side cannot depend on the value of $W$, as there is an admissible set $Z$ which gives us an alternative formula
+	\begin{equation*} 
+	%\label{eq:verma-admissible}
+	P(Y \given \doo(X = x)) = \sum_{z}P(Y \given x, z)P(z),
+	\end{equation*}
+	i.e., a simple back-door formula where variable $W$ is not present.
+	
 	\begin{figure}[!ht]
 		\centering
 		\begin{tikzpicture}[scale = 0.6]
@@ -146,7 +153,7 @@ E-mail: {\scriptsize jouni.helske@jyu.fi}}
 		\label{fig:verma-admissible}
 	\end{figure}
 	
-	Perhaps surprisingly, Verma constraints can be expressed as conditional independences in the interventional distribution \citep{ShpitserPearlDormant} and can be used to give an alternative definition for nested Markov models in acyclic directed mixed graphs \citep{richardson2012}. 
+	Perhaps surprisingly, Verma-constraints can be expressed as conditional independences in the interventional distribution \citep{ShpitserPearlDormant} and can be used to give an alternative definition for nested Markov models in acyclic directed mixed graphs \citep{richardson2012}. 
 	Verma-constraints have been used for testing edges \citep{Shpitser2009} and for marginalization via variable elimination \citep{Shpitser2011}.
 	
 \subsection{Trapdoor variables}\label{sec:trapdoor}
@@ -162,12 +169,7 @@ E-mail: {\scriptsize jouni.helske@jyu.fi}}
 			\item $L(G, \+ V)$ contains an edge $Z \longleftrightarrow W$ if there exists a path from $Z$ to $W$ in $G$ that does not contain the pattern $Z \longrightarrow M \longleftarrow W$ (a collider), on which every vertex except $Z$ and $W$ is in $\+ L$, the first edge of the path has as arrowhead into $W$, and the last edge has an arrowhead into $Z$.
 		\end{enumerate}
 	\end{definition}
-	Latent projections can be used to derive identifying functionals for causal effects such that they do not contain a specific variable, i.e., the variable is considered latent, and the causal effect of interest is identified in the corresponding latent projection \citep{tikka18}. For this reason the presence of a functional constraint in some identifying functional does not rule out the possibility of obtaining another identifying functional that is not subject to the same constraint. Recalling the example on the identifying functional of $P(Y \given \doo(X = x))$ in the graph of \autoref{fig:verma-admissible}, we can see that the causal effect is functionally independent from $W$. In fact, there is an admissible set $Z$ which gives us an alternative formula
-	\begin{equation*} 
-	%\label{eq:verma-admissible}
-	P(Y \given \doo(X = x)) = \sum_{z}P(Y \given x, z)P(z),
-	\end{equation*}
-	i.e., a simple back-door formula where variable $W$ is not present.
+	Latent projections can be used to derive identifying functionals for causal effects such that they do not contain a specific variable, i.e., the variable is considered latent, and the causal effect of interest is identified in the corresponding latent projection \citep{tikka18}. For this reason the presence of a functional constraint in some identifying functional does not rule out the possibility of obtaining another identifying functional that is not subject to the same constraint (Recall the example on the identifying functional of $P(Y \given \doo(X = x))$ in the graph of \autoref{fig:verma-admissible}).
 
 	We rule out this possibility of finding alternative identifying functionals by restricting our attention to settings where a \emph{trapdoor variable} is present.
 	\begin{definition}[Trapdoor variable] If ${P(\+ Y \given \doo(\+ X = \+ x))}$ is identifiable in $G$ from $P(\+ V)$, its identifying functional $f(P(\+ V))$ is functionally independent of $\+ Z$ where $\+ Z \subset \+ V \setminus (\+ X \cup \+ Y)$, and $P(\+ Y \given \doo(\+ X = \+ x))$ is not identifiable in $L(G, \+ V \setminus \+ Z)$ from $P(\+ V \setminus \+ Z)$, then $\+ Z$ is a set of \emph{\z s} with respect to $f(P(\+ V))$ in $G$.
@@ -416,21 +418,21 @@ E-mail: {\scriptsize jouni.helske@jyu.fi}}
 \end{equation}
 where the weights $\bar \gamma^{ij}$ are defined in the last step of Algorithm~\ref{algo:mc}. 
 
-		\begin{algorithm}[!t]
+\begin{algorithm}[!t]
 	\begin{algorithmic}[1]
 		\State For $i = 1,\ldots,N$:
 		%
-		\State \quad Sample $\+b^i \sim P_{\hat \theta}(\+B)$.
+		\State \quad Sample $\+b^i \sim P_{\hat \theta}(\+B)$
 		\State \quad Set or sample the value of the \z, for example as $z^i = E_{\hat \theta}(Z)$ or $z^i \sim P_{\hat \theta}(Z \given  x, \+b^i)$
-		\State \quad For $i = j, \ldots, M$:
+		\State \quad For $j = 1, \ldots, M$:
 		%
 		\State \quad \quad Sample $w^{ij} \sim P_{\hat \theta}(W)$
 		\State \quad \quad Sample $y^{ij} \sim P_{\hat \theta}(Y \given  x, z^i, w^{ij}, \+b^i)$
 		\State \quad \quad Compute $\gamma^{ij} =  P_{\hat \theta}(x \given z^i, w^{ij}, \+b^i) P_{\hat \theta}(\+b^i \given  w^{ij})$
 		%
-		\State \quad Compute the normalized weights
+		\State Compute the normalized weights:
 		\[
-		\bar \gamma^{ij} = \frac{\gamma^{ij}}{\frac{1}{M}\sum_{i=1}^N \gamma^{ij}}, \quad i = 1, \ldots, N
+		\bar \gamma^{ij} = \frac{\gamma^{ij}}{\frac{1}{M}\sum_{i=1}^N \gamma^{ij}}, \quad i = 1, \ldots, N,\, j = 1, \ldots, M
 		\]
 		%
 	\end{algorithmic}
@@ -447,7 +449,7 @@ MCSE\left(\widehat E_{\hat \theta}(Y \given \doo(X = x))\right) = \sqrt{\sum_{i=
 \end{equation*} 
 When combining Algorithm~\ref{algo:mc} with Bayesian parameter estimation, the algorithm is used at each MCMC iteration given the current values of the model parameters $\theta$. 
 	
-With the MCMC approach, we can compute functions of $\po{Y}{x}$ at each iteration, giving us samples from its posterior distribution, or we can store all $N \times M$ weighted Monte Carlo samples leading to posterior distribution of $\po{Y}{x}$ which can be further used to evaluate functions of interest. In the latter case, it can be practical to resample (using the corresponding weights) and store only one replication $y^{ij}$ at each iteration if memory constraints limit the storing of all samples.
+With the MCMC approach, we can compute functions of $\po{Y}{x}$ at each iteration, giving us samples from its posterior distribution, or we can store all $N \times M$ weighted Monte Carlo samples leading to posterior distribution of $\po{Y}{x}$, i.e., the variable $Y$ in the post-interventional distribution, which can be further used to evaluate functions of interest. In the latter case, it can be practical to resample (using the corresponding weights) and store only one replication $y^{ij}$ at each iteration if memory constraints limit the storing of all samples.
 	
 
 	
@@ -495,7 +497,7 @@ With the MCMC approach, we can compute functions of $\po{Y}{x}$ at each iteratio
 	Var(Y \given  \doo(X = x)) &= \frac{b_{xw}^2 s_y^2 s_w^2+s_x^2 \left(b_{yw}^2 s_w^2+s_y^2\right)}{b_{xw}^2 s_w^2+s_x^2}.
 	\end{aligned}
 	\end{equation*}
-	While the variance $Var(Y \given  \doo(X = x))$ does not contain the \z{} $Z$, the expected value $E(Y \given  \doo(X = x))$ does. Also, if the interest is only in the difference $E(Y \given \doo(X = x+1)) - E(Y \given \doo(X = x))$ then the effect of \z{} cancels out in this linear case.
+	While the variance $Var(Y \given  \doo(X = x))$ does not contain the \z{} $Z$, the expected value $E(Y \given  \doo(X = x))$ does, which is not surprising since $P(Y \given \doo(X = x)) = P(Y \given \doo(X = x, Z = z))$ in the graph of \autoref{fig:dagC}. Also, if the interest is only in the difference $E(Y \given \doo(X = x+1)) - E(Y \given \doo(X = x))$ then the effect of \z{} cancels out in this linear case.
 	
 	As our model is linear-Gaussian, we can apply path analysis \citep{wright1934} to our causal graph (see, e.g., \citet{Pearl2013} for examples) to find the marginal covariance matrix $\Sigma$ for $(Y, X, Z, W)$ (shown in Appendix). From $\Sigma$, using the properties of multivariate normal distribution, we can obtain the theoretical formulas for the parameters $(a_{\cdot}, b_{\cdot\cdot}, s_{\cdot})$ of model~\eqref{eq:cm} in terms of the true parameters $(\mu_{\cdot}, \alpha_{\cdot},\beta_{\cdot\cdot},\sigma_{\cdot})$ of the causal graph (see Appendix for details). Plugging these into equation~\eqref{eq:eycm}, we obtain
 	\begin{equation*}
@@ -539,7 +541,7 @@ With the MCMC approach, we can compute functions of $\po{Y}{x}$ at each iteratio
 	\begin{figure}[!ht]
 		\centering
 		\includegraphics[width=\textwidth]{figures/bernoulli.pdf} 
-		\caption{Average estimates of $P(Y \given \doo(X = x))$ and $\pm 2 SE$ over 100\,000 replications for the Binary model with varying sample sizes and different strategies to account for the \z{} $Z$. The dashed lines show the true causal effects.}
+		\caption{Average estimates of $P(Y = 0 \given \doo(X = x))$ and $\pm 2 SE$ over 100\,000 replications for the Binary model with varying sample sizes and different strategies to account for the \z{} $Z$. The dashed lines show the true causal effects.}
 		\label{fig:bernoulli}
 	\end{figure}
 	
@@ -615,30 +617,31 @@ With the MCMC approach, we can compute functions of $\po{Y}{x}$ at each iteratio
 	U_2 &\sim N(0, 1),\\
 	U_3 &\sim N(0, 1),\\
 	G &\sim \text{Bernoulli}(0.5)\\
-	(S \given U_3 = u_3) & \sim N(36 + 5 u_3, 9)\\
+	(S \given U_3 = u_3) & \sim N(36 + 3 u_3, 25)\\
 	(W \given U_1 = u_1, U_2 = u_2, U_3 = u_3) &=  \begin{cases}
-	1 & \text{if $u_1 + u_2 + u_3 \leq -1.12$}\\
-	2 & \text{if $-1.12 < u_1 + u_2 + u_3 \leq 1.87$}\\
+	1 & \text{if $u_1 + u_2 + u_3 \leq -1.1$}\\
+	2 & \text{if $-1.1 < u_1 + u_2 + u_3 \leq 1.9$}\\
 	3 & \text{otherwise}
 	\end{cases}\\
 	(Z \given W = w, S = s, G = g) &\sim \text{Beta}(\mu_z \phi_z, (1 - \mu_z)\phi_z),\\
-	(X \given Z = z, U_2 = u_2, S = s, G = g) &\sim \text{SM}(-0.1 g + 0.05 s + 10 z + 2 u_2, (10.3, 11.4)),\\
+	(X \given Z = z, U_2 = u_2, S = s, G = g) &\sim \text{SM}(-0.5 g + 0.04 s + 13.5 z + 2 u_2, (12.5, 14)),\\
 	(Y \given X = x, U_1 = u_1, S = s, G = g) &\sim \text{Gamma}(10000, 10000 / \mu_y),
 	\end{aligned}
 	\end{equation*}
 	where 
 	\begin{equation*}
 	\begin{aligned}
-	\mu_z &= \exp(-1.2 + 0.43 g + 0.05 s + 0.07  \textrm{I}(w = 1) + 0.33 \textrm{I}(w = 2)), \\
-	\phi_z &= \exp(2.23 + 0.18 g), \\
-	\mu_y &= \exp(8 + 0.05 s - 0.2 g + 0.5 \textrm{I}(x = 1) + 0.8 \textrm{I}(x = 2) + 0.6 u_1),
+	\mu_z &= \exp(-1.2 + 0.4 g + 0.05 s + 0.1 \textrm{I}(w = 2) + 0.3 \textrm{I}(w = 3)), \\
+	\phi_z &= \exp(2.2 + 0.2 g), \\
+	\mu_y &= \exp(9.3 + 0.02 s - 0.5 g + 0.2 \textrm{I}(x = 1) + 0.5 \textrm{I}(x = 2) + 0.4 u_1),
 	\end{aligned}
 	\end{equation*}
+	
 	 and $\text{SM}(\eta, \tau)$ is a sequential model \citep{Tutz1990, burkner2019} with a linear predictor $\eta$ and a threshold vector $\tau$.
 
 	Compared to the linear-Gaussian experiment of \autoref{sec:simulation_experiment}, here additional difficulties arise due to the fact that in addition to the unknown parameters $\theta$, our distributional assumptions for the terms in equation \eqref{eq:fsd} are not correct. For example, while $(Y \given X = x, U_1 = u_1, S = s, G = g)$ is Gamma distributed by definition, $(Y \given X = x, S = s, G = g, W = w, Z = z)$ might not be. This can naturally bias our causal estimates, but the question remains whether different choices for the trapdoor variable affect the bias or precision of the causal estimates.
 	
-	For the terms in \eqref{eq:fsd}, we assume a Gamma distribution for $Y$, and model its expected value given other variables via log-link, assuming a monotonic effect \citep{burkner2018} of $X$ and $W$. We treat $X$ and $W$ as ordinal variables and model them with ordered logistic regression and a sequential model with a logit-link \citep{Tutz1990, burkner2019} respectively. We use a normal distribution for the conditional and unconditional distributions of $S$, and a Bernoulli distribution for $G$. 
+	For the terms in \eqref{eq:fsd}, we assume a Gamma distribution for $Y$, and model its expected value given other variables via log-link, assuming a monotonic effect \citep{burkner2018} of $X$ and $W$. We treat $X$ and $W$ as ordinal variables and model them with ordered logistic regression and a sequential model with a logit-link \citep{Tutz1990, burkner2019} respectively. We use a normal distribution for $S$, and a Bernoulli distribution for $G$. 
 	
 	We simulated 1\,000 replications of sample size 500 from this model, and estimated the posterior mean of $P(Y \given \doo(X = x))$ using the four different strategies for the trapdoor variable: $Z \sim P(Z)$, $Z \sim P(Z \given S = s^i, G = g^i)$, $Z \sim P(Z \given S = s^i, G = g^i, X = x)$, and $Z \sim P(Z \given X = x)$. We use a Beta distribution for $Z$ in all cases by modelling the expected value via a logit-link and precision via a log-link. Based on the data generating process, the true causal effects are 19\,690, 24\,049, and 32\,463 for $x=0,1,2$ respectively. The root mean square error (RMSE) and bias of our causal estimates compared to ground truth are shown in \autoref{table:nongaussian-results}. We see that RMSE increases with respect to the intervention variable $X$ and the differences between trapdoor strategies are relatively small except when $x=2$, where conditioning on the intervention variable results in approximately 20\% smaller RMSE than when using the marginal distribution of the trapdoor variable or when conditioning only with covariates $S$ and $G$. The differences in bias estimates are within the Monte Carlo error in the case of $X=0$. With $X=1$, the trapdoor strategies without conditioning on $X$ results in positive bias whereas conditioning on $X$ leads to a bias of similar magnitude but in a different direction. For $X=2$, the bias is substantially larger with trapdoor strategies not involving $X$. In this simulation experiment, conditioning on the covariates $\+ B$ does not improve the estimates. 
 
