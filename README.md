@@ -2,6 +2,7 @@
 
 Materials for the paper *Estimation of causal effects with small data in the presence of trapdoor variables* by Jouni Helske, Santtu Tikka, and Juha Karvanen.
 
+* Paper at JRSS A (open access): http://doi.org/10.1111/rssa.12699 
 * arXiv preprint: https://arxiv.org/abs/2003.03187
 
 ### Repository contents
